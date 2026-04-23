@@ -389,30 +389,7 @@ function hideBar(){
   sessionStorage.setItem('ib-dismissed','1');
 }
 
-/* ══════════════════════════════════════
-   3. Service Worker（离线缓存）
-      注入为 Blob URL，无需独立 sw.js 文件
-══════════════════════════════════════ */
-if('serviceWorker' in navigator){
-  const swCode=`
-const CACHE='n1-v1';
-const SELF=self.location.href;
-self.addEventListener('install',e=>{
-  e.waitUntil(caches.open(CACHE).then(c=>c.add(SELF)));
-  self.skipWaiting();
-});
-self.addEventListener('activate',e=>{
-  e.waitUntil(clients.claim());
-});
-self.addEventListener('fetch',e=>{
-  e.respondWith(
-    fetch(e.request).catch(()=>caches.match(e.request))
-  );
-});`;
-  const blob=new Blob([swCode],{type:'application/javascript'});
-  const url=URL.createObjectURL(blob);
-  navigator.serviceWorker.register(url).catch(()=>{});
-}
+
 
 /* ══════════════════════════════════════
    4. QRH 数据 & 计算逻辑
