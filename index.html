@@ -1,663 +1,118 @@
 <!DOCTYPE html>
-
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<!-- ▸ iOS 主屏幕 PWA 必要标签 -->
-
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="N1 速算">
+<meta name="apple-mobile-web-app-title" content="N1速算">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0d0d0f">
-
-<!-- 图标由 JS 动态生成后注入 -->
-
-<link rel="apple-touch-icon" id="pwa-icon">
-
-<title>737 N1 速算</title>
+<title>737 N1速算</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-
-/* ── Light mode (default) ── */
-:root{
-–bg:#f2f2f7;–bg2:#ffffff;–card:#ffffff;–card2:#e5e5ea;–sep:#c6c6c8;
-–nb-bg:rgba(242,242,247,0.92);
-–acc:#0a84ff;–grn:#34c759;–yel:#ff9500;–org:#ff6b00;–red:#ff3b30;
-–t1:#000000;–t2:#3c3c43;–t3:#6e6e73;–t4:#c7c7cc;
-–mono:‘SF Mono’,‘Menlo’,‘Courier New’,monospace;
-–drum-bg:#ffffff;–drum-fade:rgba(255,255,255,1);–drum-fade0:rgba(255,255,255,0);
-–sbox-bg:rgba(0,0,0,0.04);
-}
-/* ── Dark mode ── */
-@media(prefers-color-scheme:dark){
-:root{
-–bg:#0d0d0f;–bg2:#1c1c1e;–card:#2c2c2e;–card2:#3a3a3c;–sep:#38383a;
-–nb-bg:rgba(13,13,15,0.92);
-–acc:#0a84ff;–grn:#30d158;–yel:#ffd60a;–org:#ff9f0a;–red:#ff453a;
-–t1:#ffffff;–t2:rgba(235,235,245,0.8);–t3:rgba(235,235,245,0.55);–t4:rgba(235,235,245,0.25);
-–drum-bg:#1c1c1e;–drum-fade:rgba(28,28,30,1);–drum-fade0:rgba(28,28,30,0);
-–sbox-bg:rgba(255,255,255,0.05);
-}
-}
-
-html,body{min-height:100%;background:var(–bg);color:var(–t1);
-font-family:-apple-system,‘Helvetica Neue’,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
-.page{display:none;min-height:100vh;padding-bottom:50px;}
-.page.on{display:block;}
-
-/* Navbar */
-.nb{position:sticky;top:0;z-index:100;background:var(–nb-bg);
--webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
-border-bottom:.5px solid var(–sep);padding:env(safe-area-inset-top,0px) 0 0;}
+:root{--bg:#f2f2f7;--bg2:#fff;--card:#fff;--card2:#e5e5ea;--sep:#c6c6c8;--nb-bg:rgba(242,242,247,0.92);--acc:#0a84ff;--grn:#34c759;--yel:#ff9500;--org:#ff6b00;--red:#ff3b30;--t1:#000;--t2:#3c3c43;--t3:#6e6e73;--t4:#c7c7cc;--mono:'SF Mono','Menlo',monospace;--drum-bg:#fff;--drum-fade:rgba(255,255,255,1);--drum-fade0:rgba(255,255,255,0);--sbox-bg:rgba(0,0,0,0.04);}
+@media(prefers-color-scheme:dark){:root{--bg:#0d0d0f;--bg2:#1c1c1e;--card:#2c2c2e;--card2:#3a3a3c;--sep:#38383a;--nb-bg:rgba(13,13,15,0.92);--acc:#0a84ff;--grn:#30d158;--yel:#ffd60a;--org:#ff9f0a;--red:#ff453a;--t1:#fff;--t2:rgba(235,235,245,0.8);--t3:rgba(235,235,245,0.55);--t4:rgba(235,235,245,0.25);--drum-bg:#1c1c1e;--drum-fade:rgba(28,28,30,1);--drum-fade0:rgba(28,28,30,0);--sbox-bg:rgba(255,255,255,0.05);}}
+html,body{min-height:100%;background:var(--bg);color:var(--t1);font-family:-apple-system,'Helvetica Neue',sans-serif;overflow-x:hidden;}
+.page{display:none;min-height:100vh;padding-bottom:50px;}.page.on{display:block;}
+.nb{position:sticky;top:0;z-index:100;background:var(--nb-bg);backdrop-filter:blur(20px);border-bottom:.5px solid var(--sep);padding:env(safe-area-inset-top,0) 0 0;}
 .nb-in{display:flex;align-items:center;justify-content:space-between;height:44px;padding:0 16px;}
-.nb-back{color:var(–acc);font-size:17px;background:none;border:none;cursor:pointer;
-display:flex;align-items:center;gap:2px;min-width:60px;padding:0;}
-.nb-title{font-size:17px;font-weight:600;color:var(–t1);}
-.nb-r{min-width:60px;}
-
-/* Sections */
-.sec{margin:28px 16px 0;}
-.sec-hd{font-size:13px;color:var(–t3);text-transform:uppercase;letter-spacing:.5px;padding:0 4px 8px;}
-.grp{background:var(–card);border-radius:12px;overflow:hidden;
-box-shadow:0 1px 0 var(–sep);}
-.row{display:flex;align-items:center;min-height:50px;padding:0 16px;
-border-bottom:.5px solid var(–sep);cursor:pointer;user-select:none;}
-.row:last-child{border-bottom:none;}
-.row:active:not(.notap){background:var(–card2);}
-.rl{font-size:17px;color:var(–t1);flex:1;}
-.rv{font-size:17px;color:var(–t3);margin-right:6px;font-family:var(–mono);}
-.rv.hi{color:var(–acc);}
-.chv{color:var(–t4);font-size:14px;}
-
-/* AC tiles */
+.nb-back{color:var(--acc);font-size:17px;background:none;border:none;display:flex;align-items:center;gap:2px;min-width:60px;}
+.nb-title{font-size:17px;font-weight:600;color:var(--t1);}
+.sec{margin:28px 16px 0;}.sec-hd{font-size:13px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;padding:0 4px 8px;}
+.grp{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 0 var(--sep);}
+.row{display:flex;align-items:center;min-height:50px;padding:0 16px;border-bottom:.5px solid var(--sep);user-select:none;}
+.row:last-child{border-bottom:none;}.row:active:not(.notap){background:var(--card2);}
+.rl{font-size:17px;color:var(--t1);flex:1;}.rv{font-size:17px;color:var(--t3);font-family:var(--mono);}.rv.hi{color:var(--acc);}
 .act-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:20px 16px 0;}
-.act{background:var(–card);border-radius:14px;padding:16px 8px 14px;text-align:center;
-cursor:pointer;border:2px solid transparent;transition:all .15s;
-box-shadow:0 1px 3px rgba(0,0,0,.08);}
-.act.sel{border-color:var(–acc);background:rgba(10,132,255,.1);}
-.act:active{opacity:.7;}
-.act-ic{font-size:26px;margin-bottom:6px;}
-.act-nm{font-size:13px;font-weight:600;color:var(–t1);line-height:1.3;}
-.act-sub{font-size:11px;color:var(–t3);margin-top:3px;font-family:var(–mono);}
-
-/* Seg */
+.act{background:var(--card);border-radius:14px;padding:16px 8px 14px;text-align:center;border:2px solid transparent;transition:all .15s;}
+.act.sel{border-color:var(--acc);background:rgba(10,132,255,.1);}.act-ic{font-size:26px;margin-bottom:6px;}
+.act-nm{font-size:13px;font-weight:600;color:var(--t1);}.act-sub{font-size:11px;color:var(--t3);font-family:var(--mono);}
 .seg{background:rgba(118,118,128,.18);border-radius:9px;display:flex;padding:2px;margin:0 16px;}
-.sbtn{flex:1;height:32px;border-radius:7px;border:none;background:transparent;
-color:var(–t3);font-size:15px;font-weight:500;cursor:pointer;}
-.sbtn.on{background:var(–bg2);color:var(–t1);
-box-shadow:0 1px 3px rgba(0,0,0,.15);}
-
-/* Toggle */
-.tog{position:relative;width:51px;height:31px;flex-shrink:0;}
-.tog input{opacity:0;width:0;height:0;position:absolute;}
-.tog-tr{position:absolute;inset:0;background:var(–sep);border-radius:31px;transition:background .3s;cursor:pointer;}
-.tog input:checked+.tog-tr{background:var(–grn);}
-.tog-th{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;
-background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);
-transition:left .28s cubic-bezier(.23,1,.32,1);pointer-events:none;}
+.sbtn{flex:1;height:32px;border-radius:7px;border:none;background:transparent;color:var(--t3);font-size:15px;}
+.sbtn.on{background:var(--bg2);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,.15);}
+.tog{position:relative;width:51px;height:31px;}.tog input{opacity:0;position:absolute;}
+.tog-tr{position:absolute;inset:0;background:var(--sep);border-radius:31px;transition:background .3s;}
+.tog input:checked+.tog-tr{background:var(--grn)!important;}
+.tog-th{position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:left .28s;}
 .tog input:checked~.tog-th{left:22px;}
-
-/* CTA */
 .cta-w{padding:24px 16px 0;}
-.cta{width:100%;height:56px;background:var(–acc);border:none;border-radius:14px;
-color:#fff;font-size:17px;font-weight:600;cursor:pointer;}
+.cta{width:100%;height:56px;background:#007AFF;border:none;border-radius:14px;color:#fff;font-size:17px;font-weight:600;}
 .cta:active{opacity:.8;}
-
-/* QNH */
-.qnh-in{width:100%;background:transparent;border:none;color:var(–t1);
-font-size:22px;font-family:var(–mono);text-align:center;outline:none;
--webkit-appearance:none;padding:12px 16px;}
-
-/* ── Drum picker ── */
-.ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);
--webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
-display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .28s;}
+.qnh-in{width:100%;background:transparent;border:none;color:var(--t1);font-size:22px;font-family:var(--mono);text-align:center;padding:12px 16px;outline:none;}
+.ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .28s;}
 .ov.open{opacity:1;pointer-events:all;}
-.psh{width:100%;background:var(–drum-bg);border-radius:14px 14px 0 0;
-padding-bottom:env(safe-area-inset-bottom,0px);
-transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);}
+.psh{width:100%;background:var(--drum-bg);border-radius:14px 14px 0 0;transform:translateY(100%);transition:transform .35s;}
 .ov.open .psh{transform:translateY(0);}
-.phd{display:flex;justify-content:space-between;align-items:center;
-padding:12px 16px 8px;border-bottom:.5px solid var(–sep);}
-.ptitle{font-size:13px;color:var(–t3);font-weight:500;}
-.pdone{font-size:17px;color:var(–acc);font-weight:600;background:none;border:none;cursor:pointer;padding:4px 0;}
-
-/* drum container — fixed 220px, no overflow clipping on list itself */
-.drum{position:relative;height:220px;overflow:hidden;touch-action:none;}
-.d-top,.d-bot{position:absolute;left:0;right:0;z-index:2;pointer-events:none;height:88px;}
-.d-top{top:0;background:linear-gradient(to bottom,var(–drum-fade),var(–drum-fade0));}
-.d-bot{bottom:0;background:linear-gradient(to top,var(–drum-fade),var(–drum-fade0));}
-.d-sel{position:absolute;left:16px;right:16px;top:50%;transform:translateY(-50%);
-height:44px;z-index:1;pointer-events:none;
-border-top:.5px solid var(–sep);border-bottom:.5px solid var(–sep);}
-.d-list{list-style:none;width:100%;}
-.d-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:21px;font-family:var(–mono);color:var(–t3);}
-
-/* Result */
-.hero{margin:24px 16px 0;
-background:linear-gradient(135deg,rgba(10,132,255,.12),rgba(10,132,255,.04));
-border:1px solid rgba(10,132,255,.3);border-radius:20px;
-padding:28px 20px 24px;text-align:center;position:relative;overflow:hidden;}
-.hero::before{content:’’;position:absolute;top:0;left:0;right:0;height:1px;
-background:linear-gradient(90deg,transparent,rgba(10,132,255,.6),transparent);}
-.hero-lbl{font-size:12px;color:var(–t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
-.hero-n1{font-size:80px;font-weight:200;color:var(–acc);line-height:1;
-font-family:var(–mono);letter-spacing:-3px;}
-.hero-n1 sup{font-size:28px;font-weight:400;vertical-align:top;margin-top:18px;display:inline-block;}
-.hero-range{font-size:14px;color:var(–t3);margin-top:8px;font-family:var(–mono);}
-.hero-range b{color:var(–yel);}
-.hero-sub{font-size:12px;color:var(–t4);margin-top:8px;font-family:var(–mono);}
-
-.bk-hd{font-size:13px;color:var(–t3);text-transform:uppercase;letter-spacing:.4px;
-padding:0 4px 8px;margin:28px 16px 0;}
-.bk-row{display:flex;justify-content:space-between;align-items:center;
-padding:11px 16px;border-bottom:.5px solid var(–sep);font-size:15px;}
-.bk-row:last-child{border-bottom:none;}
-.bk-row.tot{background:rgba(10,132,255,.07);border-top:.5px solid rgba(10,132,255,.2);border-bottom:none;}
-.bk-k{color:var(–t2);flex:1;padding-right:8px;line-height:1.4;}
-.bk-v{font-family:var(–mono);font-size:15px;white-space:nowrap;}
-.bk-v.pos{color:var(–org);}.bk-v.neg{color:var(–grn);}.bk-v.zer{color:var(–t4);}
-.bk-v.bas{color:var(–yel);}.bk-v.mid{color:var(–t3);}.bk-v.fin{color:var(–acc);font-size:17px;font-weight:600;}
-
+.phd{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 8px;border-bottom:.5px solid var(--sep);}
+.ptitle{font-size:13px;color:var(--t3);}.pdone{font-size:17px;color:var(--acc);background:none;border:none;}
+.drum{position:relative;height:220px;overflow:hidden;}.d-top,.d-bot{position:absolute;left:0;right:0;z-index:2;height:88px;pointer-events:none;}
+.d-top{top:0;background:linear-gradient(to bottom,var(--drum-fade),var(--drum-fade0));}
+.d-bot{bottom:0;background:linear-gradient(to top,var(--drum-fade),var(--drum-fade0));}
+.d-sel{position:absolute;left:16px;right:16px;top:50%;transform:translateY(-50%);height:44px;border-top:.5px solid var(--sep);border-bottom:.5px solid var(--sep);pointer-events:none;}
+.d-list{list-style:none;}.d-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:21px;font-family:var(--mono);color:var(--t3);}
+.hero{margin:24px 16px 0;background:linear-gradient(135deg,rgba(10,132,255,.12),rgba(10,132,255,.04));border:1px solid rgba(10,132,255,.3);border-radius:20px;padding:28px 20px 24px;text-align:center;}
+.hero-lbl{font-size:12px;color:var(--t3);letter-spacing:1px;}.hero-n1{font-size:80px;font-weight:200;color:var(--acc);font-family:var(--mono);}
+.hero-range{font-size:14px;color:var(--t3);margin-top:8px;}.hero-sub{font-size:12px;color:var(--t4);margin-top:8px;}
+.bk-hd{font-size:13px;color:var(--t3);margin:28px 16px 0;}.bk-row{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;border-bottom:.5px solid var(--sep);font-size:15px;}
+.bk-row.tot{background:rgba(10,132,255,.07);border-top:.5px solid rgba(10,132,255,.2);}
+.bk-k{color:var(--t2);flex:1;}.bk-v{font-family:var(--mono);}.bk-v.pos{color:var(--org);}.bk-v.neg{color:var(--grn);}.bk-v.bas{color:var(--yel);}.bk-v.fin{color:var(--acc);font-size:17px;font-weight:600;}
 .sbox{margin:14px 16px 0;border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.65;}
-.sbox.tw{background:rgba(255,149,0,.1);border:1px solid rgba(255,149,0,.3);color:var(–org);}
-.sbox.hw{background:rgba(52,199,89,.08);border:1px solid rgba(52,199,89,.25);color:var(–grn);}
-.sbox.nw{background:var(–sbox-bg);border:1px solid var(–sep);color:var(–t2);}
-.sbox-t{font-weight:600;font-size:15px;margin-bottom:6px;}
-
-.tip{margin:14px 16px 0;background:rgba(255,149,0,.07);border:1px solid rgba(255,149,0,.2);
-border-radius:12px;padding:14px 16px;font-size:14px;color:var(–t2);line-height:1.65;}
-.tip-t{font-size:11px;color:var(–yel);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;font-weight:600;}
-
-/* Install bar */
-#install-bar{position:fixed;bottom:0;left:0;right:0;z-index:300;
-background:var(–bg2);border-top:.5px solid var(–sep);
-padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));
-display:flex;align-items:center;gap:12px;
-transform:translateY(100%);transition:transform .4s cubic-bezier(.32,.72,0,1);}
-#install-bar.show{transform:translateY(0);}
-.ib-icon{width:44px;height:44px;border-radius:10px;flex-shrink:0;background:var(–acc);
-display:flex;align-items:center;justify-content:center;font-size:22px;}
-.ib-text{flex:1;font-size:13px;color:var(–t2);line-height:1.5;}
-.ib-close{color:var(–t3);font-size:22px;background:none;border:none;cursor:pointer;padding:4px;}
-@keyframes bounce{from{transform:translateY(0);}to{transform:translateY(5px);}}
+.sbox.tw{background:rgba(255,149,0,.1);border:1px solid rgba(255,149,0,.3);color:var(--org);}
+.sbox.hw{background:rgba(52,199,89,.08);border:1px solid rgba(52,199,89,.25);color:var(--grn);}
+.sbox.nw{background:var(--sbox-bg);border:1px solid var(--sep);color:var(--t2);}
+.tip{margin:14px 16px 0;background:rgba(255,149,0,.07);border:1px solid rgba(255,149,0,.2);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--t2);}
 .sp{height:40px;}
 </style>
-
 </head>
 <body>
-
-<!-- PAGE: INPUT -->
-
 <div class="page on" id="pg-in">
-  <div class="nb"><div class="nb-in">
-    <div style="min-width:60px"></div>
-    <div class="nb-title">737 基准 N1</div>
-    <div class="nb-r"></div>
+  <div class="nb"><div class="nb-in"><div class="nb-title">737 基准 N1</div></div></div>
+  <div class="sec"><div class="sec-hd">机型</div><div class="act-grid">
+    <div class="act sel" data-ac="800W" onclick="selAC(this)"><div class="act-ic">✈</div><div class="act-nm">800W</div><div class="act-sub">7B24</div></div>
+    <div class="act" data-ac="800W_SFP" onclick="selAC(this)"><div class="act-ic">✈</div><div class="act-nm">800W SFP</div><div class="act-sub">7B26</div></div>
+    <div class="act" data-ac="8MAX" onclick="selAC(this)"><div class="act-ic">✈</div><div class="act-nm">MAX</div><div class="act-sub">LEAP25</div></div>
   </div></div>
-
-  <div class="sec">
-    <div class="sec-hd">机型</div>
-    <div class="act-grid">
-      <div class="act sel" data-ac="800W" onclick="selAC(this)">
-        <div class="act-ic">✈</div>
-        <div class="act-nm">800W</div>
-        <div class="act-sub">7B<b>24</b></div>
-      </div>
-      <div class="act" data-ac="800W_SFP" onclick="selAC(this)">
-        <div class="act-ic">✈</div>
-        <div class="act-nm">800W SFP</div>
-        <div class="act-sub">7B<b>26</b></div>
-      </div>
-      <div class="act" data-ac="8MAX" onclick="selAC(this)">
-        <div class="act-ic">✈</div>
-        <div class="act-nm">MAX</div>
-        <div class="act-sub">LEAP<b>25</b></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-hd">落地形态</div>
-    <div class="seg">
-      <button class="sbtn on" onclick="selFlap(30,this)">襟翼 30</button>
-      <button class="sbtn"    onclick="selFlap(40,this)">襟翼 40</button>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-hd">参数（点击滚轮选择）</div>
-    <div class="grp">
-      <div class="row" onclick="openD('weight')">
-        <span class="rl">落地重量</span>
-        <span class="rv hi" id="dw">140 klb</span><span class="chv">›</span>
-      </div>
-      <div class="row" onclick="openD('elev')">
-        <span class="rl">机场标高</span>
-        <span class="rv hi" id="de">0 ft</span><span class="chv">›</span>
-      </div>
-      <div class="row" onclick="openD('oat')">
-        <span class="rl">地面温度</span>
-        <span class="rv hi" id="dt">15 °C</span><span class="chv">›</span>
-      </div>
-      <div class="row" onclick="openD('wind')">
-        <span class="rl">五边风（顶+／顺−）</span>
-        <span class="rv hi" id="dwin">静风</span><span class="chv">›</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-hd">修正海压 QNH (hPa)</div>
-    <div class="grp">
-      <div class="row notap" style="padding:0;">
-        <input class="qnh-in" type="number" id="qnh" value="1013" min="950" max="1050" inputmode="decimal">
-      </div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-hd">附加修正</div>
-    <div class="grp">
-      <div class="row notap">
-        <span class="rl">防冰使用中</span>
-        <label class="tog"><input type="checkbox" id="t-ai"><div class="tog-tr"></div><div class="tog-th"></div></label>
-      </div>
-      <div class="row notap">
-        <span class="rl">中到大雨 / 雪</span>
-        <label class="tog"><input type="checkbox" id="t-rn"><div class="tog-tr"></div><div class="tog-th"></div></label>
-      </div>
-    </div>
-  </div>
-
-  <div class="sec">
-    <div class="sec-hd">下滑角</div>
-    <div class="grp">
-      <div class="row" onclick="cycleGS()">
-        <span class="rl">下滑角</span>
-        <span class="rv hi" id="dgs">3.0°（标准）</span><span class="chv">›</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="cta-w"><button class="cta" onclick="calc()">计算基准 N1</button></div>
-  <div class="sp"></div>
+  <div class="sec"><div class="sec-hd">落地形态</div><div class="seg">
+    <button class="sbtn on" onclick="selFlap(30,this)">襟翼30</button>
+    <button class="sbtn" onclick="selFlap(40,this)">襟翼40</button>
+  </div></div>
+  <div class="sec"><div class="sec-hd">参数</div><div class="grp">
+    <div class="row" onclick="openD('weight')"><span class="rl">落地重量</span><span class="rv hi" id="dw">140 klb</span></div>
+    <div class="row" onclick="openD('elev')"><span class="rl">机场标高</span><span class="rv hi" id="de">0 ft</span></div>
+    <div class="row" onclick="openD('oat')"><span class="rl">地面温度</span><span class="rv hi" id="dt">15 °C</span></div>
+    <div class="row" onclick="openD('wind')"><span class="rl">五边风</span><span class="rv hi" id="dwin">静风</span></div>
+  </div></div>
+  <div class="sec"><div class="sec-hd">修正海压QNH</div><div class="grp">
+    <input class="qnh-in" type="number" id="qnh" value="1013" min="950" max="1050">
+  </div></div>
+  <div class="sec"><div class="sec-hd">附加修正</div><div class="grp">
+    <div class="row notap"><span class="rl">防冰使用中</span><label class="tog"><input type="checkbox" id="t-ai"><div class="tog-tr"></div><div class="tog-th"></div></label></div>
+    <div class="row notap"><span class="rl">中到大雨/雪</span><label class="tog"><input type="checkbox" id="t-rn"><div class="tog-tr"></div><div class="tog-th"></div></label></div>
+  </div></div>
+  <div class="sec"><div class="sec-hd">下滑角</div><div class="grp">
+    <div class="row" onclick="cycleGS()"><span class="rl">下滑角</span><span class="rv hi" id="dgs">3.0°（标准）</span></div>
+  </div></div>
+  <div class="cta-w"><button class="cta" onclick="calc()">计算基准N1</button></div>
 </div>
-
-<!-- PAGE: RESULT -->
-
 <div class="page" id="pg-res">
-  <div class="nb"><div class="nb-in">
-    <button class="nb-back" onclick="goBack()">‹ 返回</button>
-    <div class="nb-title">基准 N1</div>
-    <div class="nb-r"></div>
-  </div></div>
-
-  <div class="hero">
-    <div class="hero-lbl">BASELINE N1 · 基准油门</div>
-    <div class="hero-n1" id="rn1">--<sup>%</sup></div>
-    <div class="hero-range">操作范围 <b id="rrange">-- ~ --%</b></div>
-    <div class="hero-sub" id="rsub"></div>
-  </div>
-
-  <div id="shear-wrap"></div>
-
-  <div class="bk-hd">计算步骤</div>
-  <div class="grp" style="margin:0 16px" id="bk"></div>
-
-  <div class="tip" id="tip"></div>
-
-  <div style="margin:16px 16px 0;text-align:center;font-size:11px;color:var(--t4);font-family:var(--mono)">
-    By HU好奇宝宝 · 基于贵司实际QRH · 仅供参考，以公司SOP为准
-  </div>
-  <div class="sp"></div>
+  <div class="nb"><div class="nb-in"><button class="nb-back" onclick="goBack()">‹ 返回</button><div class="nb-title">基准N1</div></div></div>
+  <div class="hero"><div class="hero-lbl">BASELINE N1</div><div class="hero-n1" id="rn1">--%</div><div class="hero-range" id="rrange">-- ~ --%</div><div class="hero-sub" id="rsub"></div></div>
+  <div id="shear-wrap"></div><div class="bk-hd">计算步骤</div><div class="grp" id="bk"></div><div class="tip" id="tip"></div>
 </div>
-
-<!-- DRUM MODAL -->
-
-<div class="ov" id="ov" onclick="ovClick(event)">
-  <div class="psh" onclick="void(0)">
-    <div class="phd">
-      <span class="ptitle" id="ptitle">选择</span>
-      <button class="pdone" onclick="closeD()">完成</button>
-    </div>
-    <div class="drum" id="drum">
-      <div class="d-top"></div>
-      <div class="d-sel"></div>
-      <div class="d-bot"></div>
-      <ul class="d-list" id="dlist"></ul>
-    </div>
-  </div>
-</div>
-
-<!-- 安装引导条 -->
-
-<div id="install-bar">
-  <div class="ib-icon">✈</div>
-  <div class="ib-text">
-    <b>添加到主屏幕，离线使用</b>
-    点击底部 <b style="color:var(--acc)">分享</b> 按钮 → 选择「添加到主屏幕」
-  </div>
-  <span class="ib-arrow">↓</span>
-  <button class="ib-close" onclick="hideBar()">✕</button>
-</div>
-
+<div class="ov" id="ov"><div class="psh"><div class="phd"><span id="ptitle"></span><button onclick="closeD()">完成</button></div><div class="drum"><div class="d-top"></div><div class="d-sel"></div><div class="d-bot"></div><ul id="dlist"></ul></div></div></div>
 <script>
-/* ══════════════════════════════════════
-   1. 动态生成 App 图标 (180×180 canvas)
-══════════════════════════════════════ */
-(function(){
-  const c=document.createElement('canvas');
-  c.width=c.height=180;
-  const ctx=c.getContext('2d');
-  // background
-  const g=ctx.createLinearGradient(0,0,180,180);
-  g.addColorStop(0,'#0d0d0f');g.addColorStop(1,'#1a2235');
-  ctx.fillStyle=g;
-  ctx.roundRect(0,0,180,180,36);ctx.fill();
-  // accent ring
-  ctx.strokeStyle='rgba(10,132,255,0.5)';ctx.lineWidth=3;
-  ctx.roundRect(4,4,172,172,33);ctx.stroke();
-  // "N1" text
-  ctx.fillStyle='#0a84ff';
-  ctx.font='bold 72px "Helvetica Neue",Helvetica,Arial,sans-serif';
-  ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText('N1',90,82);
-  // "737" subtext
-  ctx.fillStyle='rgba(235,235,245,0.5)';
-  ctx.font='500 28px "Helvetica Neue",Helvetica,Arial,sans-serif';
-  ctx.fillText('737',90,132);
-  document.getElementById('pwa-icon').href=c.toDataURL('image/png');
-})();
-
-/* ══════════════════════════════════════
-   2. 安装提示条（仅 iOS Safari 非独立模式）
-══════════════════════════════════════ */
-(function(){
-  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone=('standalone' in navigator)&&navigator.standalone;
-  const dismissed=sessionStorage.getItem('ib-dismissed');
-  if(isIOS&&!isStandalone&&!dismissed){
-    setTimeout(()=>document.getElementById('install-bar').classList.add('show'),1200);
-  }
-})();
-function hideBar(){
-  document.getElementById('install-bar').classList.remove('show');
-  sessionStorage.setItem('ib-dismissed','1');
-}
-
-
-
-/* ══════════════════════════════════════
-   4. QRH 数据 & 计算逻辑
-══════════════════════════════════════ */
-const QRH={
-  '800W':{
-    w:[80,100,120,140,160,180],
-    e0: {30:[45.5,50.2,54.4,58.1,61.4,64.4],40:[49.9,55.2,59.8,64.0,67.4,70.4]},
-    e1k:{30:[46.2,50.9,55.1,58.9,62.2,65.1],40:[50.6,55.9,60.6,64.8,68.1,71.2]}
-  },
-  '800W_SFP':{
-    w:[80,100,120,140,160,180],
-    e0: {30:[45.3,50.0,54.2,57.9,61.1,64.1],40:[49.6,54.9,59.5,63.7,66.9,70.0]},
-    e1k:{30:[45.9,50.6,54.9,58.6,61.8,64.9],40:[50.4,55.6,60.3,64.5,67.7,70.8]}
-  },
-  '8MAX':{
-    w:[90,110,130,150,170,190],
-    e0: {30:[41.4,45.3,49.0,52.3,55.0,57.8],40:[46.0,50.4,54.4,58.0,61.4,65.0]},
-    e1k:{30:[41.9,46.0,49.6,52.9,55.7,58.5],40:[46.6,51.0,55.0,58.8,62.1,65.8]}
-  }
-};
-function lerp(w,arr,ws){
-  const wc=Math.max(ws[0],Math.min(ws[ws.length-1]-1e-4,w));
-  let i=0;for(let j=0;j<ws.length-1;j++){if(wc>=ws[j]&&wc<ws[j+1]){i=j;break;}}
-  return arr[i]+(wc-ws[i])/(ws[i+1]-ws[i])*(arr[i+1]-arr[i]);
-}
-function qrhAt(ac,flap,wklb,elev){
-  const d=QRH[ac],f=String(flap);
-  const n0=lerp(wklb,d.e0[f],d.w);
-  const n1k=lerp(wklb,d.e1k[f],d.w);
-  return{n0,n1k,n:n0+(n1k-n0)*(elev/1000)};
-}
-
+const QRH={'800W':{w:[80,100,120,140,160,180],e0:{30:[45.5,50.2,54.4,58.1,61.4,64.4],40:[49.9,55.2,59.8,64.0,67.4,70.4]},e1k:{30:[46.2,50.9,55.1,58.9,62.2,65.1],40:[50.6,55.9,60.6,64.8,68.1,71.2]}},'800W_SFP':{w:[80,100,120,140,160,180],e0:{30:[45.3,50.0,54.2,57.9,61.1,64.1],40:[49.6,54.9,59.5,63.7,66.9,70.0]},e1k:{30:[45.9,50.6,54.9,58.6,61.8,64.9],40:[50.4,55.6,60.3,64.5,67.7,70.8]}},'8MAX':{w:[90,110,130,150,170,190],e0:{30:[41.4,45.3,49.0,52.3,55.0,57.8],40:[46.0,50.4,54.4,58.0,61.4,65.0]},e1k:{30:[41.9,46.0,49.6,52.9,55.7,58.5],40:[46.6,51.0,55.0,58.8,62.1,65.8]}}};
 const S={ac:'800W',flap:30,weight:140,elev:0,oat:15,wind:0,gs:3.0};
-
-function selAC(el){
-  document.querySelectorAll('.act').forEach(t=>t.classList.remove('sel'));
-  el.classList.add('sel');S.ac=el.dataset.ac;
-}
-function selFlap(v,btn){
-  S.flap=v;
-  document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-}
-const GS=[{v:3.0,l:'3.0°（标准）'},{v:3.25,l:'3.2°～3.3°'},{v:3.5,l:'3.5°'}];
-let gsI=0;
-function cycleGS(){gsI=(gsI+1)%GS.length;S.gs=GS[gsI].v;document.getElementById('dgs').textContent=GS[gsI].l;}
-function wlabel(v){return v===0?'静风':(v>0?'↑顶风 +'+v+' kts':'↓顺风 '+v+' kts');}
-
-/* ── Drum picker ── */
-const DEFS={
-  weight:{title:'落地重量 (klb)',  items:rng(100,155,5),  disp:v=>v+' klb', set:v=>{S.weight=v;document.getElementById('dw').textContent=v+' klb';}},
-  elev:  {title:'机场标高 (ft)',   items:rng(0,8000,500), disp:v=>v===0?'海平面':v+' ft', set:v=>{S.elev=v;document.getElementById('de').textContent=v===0?'0 ft':v+' ft';}},
-  oat:   {title:'地面温度 (°C)',   items:rng(-10,40,5),   disp:v=>(v>=0?'+':'')+v+' °C', set:v=>{S.oat=v;document.getElementById('dt').textContent=v+' °C';}},
-  wind:  {title:'五边风分量 (+顶风 / −顺风)',items:rng(-10,50,5),
-          disp:v=>v===0?'静风':(v>0?'↑ +'+v+' kts':'↓ '+v+' kts'),
-          set:v=>{S.wind=v;document.getElementById('dwin').textContent=wlabel(v);}}
-};
-function rng(a,b,s){const r=[];for(let v=a;v<=b;v+=s)r.push(v);return r;}
-
-/* ═══ DRUM PICKER ═══
-  Strategy: translateY only. No PAD items. No absolute positioning.
-  The <ul> sits inside a 220px overflow:hidden container.
-  Center of container = 110px.
-  To center item[i]: translateY = 110 - 22 - i*44 = 88 - i*44
-  iIdx(ty) = (88 - ty) / 44
-*/
-let curKey=null, raf=null, dTY=0; // dTY = current translateY of the list
-const DIH=44, DCY=110; // item height, drum center Y
-
-function dTYforIdx(i){ return DCY - DIH/2 - i*DIH; } // 88 - i*44
-function dIdxFromTY(ty){ return (DCY - DIH/2 - ty) / DIH; }
-
-function dClamp(ty, n){
-  const hi = dTYforIdx(0);        // first item centered: ty=88
-  const lo = dTYforIdx(n-1);      // last item centered
-  if(ty > hi) return hi + (ty-hi)*0.2;
-  if(ty < lo) return lo + (ty-lo)*0.2;
-  return ty;
-}
-
-function dSetTY(ty){
-  document.getElementById('dlist').style.transform = 'translateY('+ty+'px)';
-}
-
-function dPaint(ci_float){
-  const ci = Math.round(ci_float);
-  document.getElementById('dlist').querySelectorAll('.d-item').forEach((el,i)=>{
-    const d = Math.abs(i - ci_float);
-    el.style.opacity = String(Math.max(0.15, 1 - d*0.32));
-    el.style.transform = 'scale('+ Math.max(0.73, 1-d*0.09) +')';
-    if(i === ci){
-      el.style.color = 'var(--t1)';
-      el.style.fontWeight = '600';
-    } else {
-      el.style.color = 'var(--t3)';
-      el.style.fontWeight = '400';
-    }
-  });
-}
-
-function openD(key){
-  curKey = key;
-  const p = DEFS[key];
-  document.getElementById('ptitle').textContent = p.title;
-  const list = document.getElementById('dlist');
-  list.innerHTML = '';
-  p.items.forEach(v=>{
-    list.innerHTML += '<li class="d-item" data-v="'+v+'">'+p.disp(v)+'</li>';
-  });
-  const idx = Math.max(0, p.items.indexOf(S[key]));
-  dTY = dTYforIdx(idx);
-  dSetTY(dTY);
-  dPaint(idx);
-  document.getElementById('ov').classList.add('open');
-}
-
-(function(){
-  let startY=0, startTY=0, lastY=0, lastT=0, vel=0, on=false;
-  const drum = document.getElementById('drum');
-
-  drum.addEventListener('touchstart', e=>{
-    if(raf){ cancelAnimationFrame(raf); raf=null; }
-    const t = e.touches[0];
-    startY = lastY = t.clientY;
-    startTY = dTY;
-    lastT = Date.now(); vel = 0; on = true;
-  }, {passive:true});
-
-  drum.addEventListener('touchmove', e=>{
-    e.preventDefault();
-    if(!on || !curKey) return;
-    const t = e.touches[0];
-    const now = Date.now();
-    const dy = t.clientY - lastY;
-    const dt = Math.max(4, now - lastT);
-    vel = dy / dt;          // px/ms
-    lastY = t.clientY; lastT = now;
-    const n = DEFS[curKey].items.length;
-    dTY = dClamp(startTY + (t.clientY - startY), n);
-    dSetTY(dTY);
-    dPaint(dIdxFromTY(dTY));
-  }, {passive:false});
-
-  drum.addEventListener('touchend', ()=>{
-    on = false;
-    if(curKey) dInertia(vel * 16); // px/ms → px/frame @60fps
-  }, {passive:true});
-})();
-
-function dInertia(v){
-  if(!curKey) return;
-  const n = DEFS[curKey].items.length;
-  const step = ()=>{
-    dTY += v; v *= 0.84;
-    dTY = dClamp(dTY, n);
-    dSetTY(dTY);
-    dPaint(dIdxFromTY(dTY));
-    if(Math.abs(v) > 0.25) raf = requestAnimationFrame(step);
-    else { raf=null; dSnap(); }
-  };
-  raf = requestAnimationFrame(step);
-}
-
-function dSnap(){
-  if(!curKey) return;
-  const n = DEFS[curKey].items.length;
-  const si = Math.max(0, Math.min(n-1, Math.round(dIdxFromTY(dTY))));
-  const tgt = dTYforIdx(si);
-  const go = ()=>{
-    dTY += (tgt - dTY) * 0.3;
-    dSetTY(dTY);
-    dPaint(dIdxFromTY(dTY));
-    if(Math.abs(dTY - tgt) > 0.08) requestAnimationFrame(go);
-    else { dTY=tgt; dSetTY(dTY); dPaint(si); }
-  };
-  requestAnimationFrame(go);
-}
-
-function closeD(){
-  if(!curKey) return;
-  if(raf){ cancelAnimationFrame(raf); raf=null; }
-  const n = DEFS[curKey].items.length;
-  const si = Math.max(0, Math.min(n-1, Math.round(dIdxFromTY(dTY))));
-  DEFS[curKey].set(DEFS[curKey].items[si]);
-  document.getElementById('ov').classList.remove('open');
-  curKey = null;
-}
-function ovClick(e){ if(e.target===document.getElementById('ov')) closeD(); }
-
-/* ── Calculate ── */
-function fc(v){if(Math.abs(v)<.05)return'±0';return(v>0?'+':'')+v.toFixed(1);}
-
-function calc(){
-  const ac=S.ac,fl=S.flap,wk=S.weight,elev=S.elev,oat=S.oat,wind=S.wind,gs=S.gs;
-  const qnh=parseFloat(document.getElementById('qnh').value)||1013;
-  const ai=document.getElementById('t-ai').checked;
-  const rn=document.getElementById('t-rn').checked;
-
-  // 高温平原机场：温度≥35°C 且标高<1000ft 时自动 -1
-  const isHighTemp=(oat>=35&&elev<1000);
-  const htC=isHighTemp?-1:0;
-
-  const{n0,n1k,n}=qrhAt(ac,fl,wk,elev);
-  const elevC=n-n0;
-  const gsC=gs>=3.49?-2:gs>=3.19?-1:0;
-  const tempC=(oat-15)/10;
-  const qnhC=-(qnh-1013)/10;
-  const gndC=wind/10;
-  const aiC=ai?1:0;const rnC=rn?1:0;
-  const step1=n+htC+gsC+tempC+qnhC+gndC+aiC+rnC;
-  const airC=wind>0?wind/10:wind/5;
-  const final=Math.round((step1+airC)*2)/2;
-  const lo=(final-3).toFixed(1),hi=(final+3).toFixed(1);
-
-  const acN={'800W':'800W/24K','800W_SFP':'800WSFP/26K','8MAX':'MAX/25K'};
-  document.getElementById('rn1').innerHTML=final.toFixed(1)+'<sup>%</sup>';
-  document.getElementById('rrange').textContent=lo+' ~ '+hi+'%';
-  document.getElementById('rsub').textContent=
-    acN[ac]+' · F'+fl+' · '+wk+'klb · '+elev+'ft · '+oat+'°C · QNH '+qnh;
-
-  const rows=[
-    {k:'QRH基准（'+wk+'klb · F'+fl+' · 海平面）',v:n0.toFixed(1),c:'bas'},
-    elev>0&&{k:'高度插值（'+(n1k-n0).toFixed(2)+'/1000ft × '+elev+'ft）',v:fc(elevC)},
-    isHighTemp&&{k:'高温平原机场（'+oat+'°C ≥ 35°C，自动）',v:fc(htC)},
-    gsC!==0&&{k:'下滑角 '+gs+'°',v:fc(gsC)},
-    tempC!==0&&{k:'温度（'+oat+'°C，基准15°C）',v:fc(tempC)},
-    qnhC!==0&&{k:'QNH（'+qnh+'hPa，基准1013）',v:fc(qnhC)},
-    gndC!==0&&{k:wlabel(wind)+' 地面稳定风',v:fc(gndC)},
-    ai&&{k:'防冰',v:fc(aiC)},
-    rn&&{k:'中到大雨/雪',v:fc(rnC)},
-    airC!==0&&{k:'── 步骤一  初步 N1',v:step1.toFixed(1),c:'mid'},
-    airC!==0&&{k:(wind>0?'顶':'顺')+'风空中修正（'+Math.abs(wind)+'kts，每'+(wind>0?10:5)+'kts '+(wind>0?'+':'-')+'1）',v:fc(airC)},
-    {k:'═══  基准 N1',v:final.toFixed(1)+'%',c:'fin',tot:true}
-  ].filter(Boolean);
-
-  let bk='';
-  rows.forEach(r=>{
-    const vc=r.c||(parseFloat(r.v)>0?'pos':parseFloat(r.v)<0?'neg':'zer');
-    bk+=`<div class="bk-row${r.tot?' tot':''}"><span class="bk-k">${r.k}</span><span class="bk-v ${vc}">${r.v}</span></div>`;
-  });
-  document.getElementById('bk').innerHTML=bk;
-
-  let sh='';
-  if(wind>5)
-    sh=`<div class="sbox tw"><div class="sbox-t">⚠ 顺风切变预期</div>五边顶风进近，低空摩擦力通常使顶风减弱，飞机有减速趋势。<br>基准油门已含顶风修正，切变前轻微增速，切变后速度减小，保持油门维持能量。</div>`;
-  else if(wind<-5)
-    sh=`<div class="sbox hw"><div class="sbox-t">✓ 顶风切变预期</div>五边顺风进近，低空通常有顶风切变，飞机有增速趋势。<br>基准油门已含顺风修正，切变前轻微减速，切变后增速，不要急于大幅加油门。</div>`;
-  else
-    sh=`<div class="sbox nw"><div class="sbox-t">风切变：无明显预期</div>风速较小，切变影响有限，速度小幅波动飞机静稳定性可自行恢复。</div>`;
-  document.getElementById('shear-wrap').innerHTML=sh;
-
-  document.getElementById('tip').innerHTML=
-    `<div class="tip-t">▶ 五边操作要点</div>
-    <b style="color:var(--yel)">建立形态后将油门稳定在 ${final}% 附近。</b><br>
-    约 70% 起落变化量 ≤±3 N1，约 90% ≤±5 N1，仅约 10% 需大幅按需操作。
-    速度偏差先判断是否持续，瞬时扰动无需干预，飞机静稳定性会自行恢复。
-    决断后见招拆招，偏离基准越大越要谨慎，始终保持回到基准的预期。`;
-
-  document.getElementById('pg-in').classList.remove('on');
-  document.getElementById('pg-res').classList.add('on');
-  window.scrollTo(0,0);
-}
-function goBack(){
-  document.getElementById('pg-res').classList.remove('on');
-  document.getElementById('pg-in').classList.add('on');
-}
+function selAC(e){document.querySelectorAll('.act').forEach(t=>t.classList.remove('sel'));e.classList.add('sel');S.ac=e.dataset.ac;}
+function selFlap(v,e){S.flap=v;document.querySelectorAll('.sbtn').forEach(b=>b.classList.remove('on'));e.classList.add('on');}
+const GS=[{v:3.0,l:'3.0°（标准）'},{v:3.25,l:'3.2°～3.3°'},{v:3.5,l:'3.5°'}];let gsI=0;
+function cycleGS(){gsI=(gsI+1)%3;S.gs=GS[gsI].v;document.getElementById('dgs').textContent=GS[gsI].l;}
+function rng(a,b,s){let r=[];for(let v=a;v<=b;v+=s)r.push(v);return r;}
+const DEFS={weight:{title:'落地重量',items:rng(100,155,5),disp:v=>v+'klb',set:v=>{S.weight=v;document.getElementById('dw').textContent=v+'klb';}},elev:{title:'机场标高',items:rng(0,8000,500),disp:v=>v+'ft',set:v=>{S.elev=v;document.getElementById('de').textContent=v+'ft';}},oat:{title:'地面温度',items:rng(-10,40,5),disp:v=>v+'°C',set:v=>{S.oat=v;document.getElementById('dt').textContent=v+'°C';}},wind:{title:'五边风',items:rng(-10,50,5),disp:v=>v===0?'静风':v>0?'顶风+'+v:'顺风'+v,set:v=>{S.wind=v;document.getElementById('dwin').textContent=v===0?'静风':v>0?'顶风+'+v:'顺风'+v;}}};
+let curKey=null;function openD(k){curKey=k;const p=DEFS[k];document.getElementById('ptitle').textContent=p.title;const l=document.getElementById('dlist');l.innerHTML='';p.items.forEach(v=>l.innerHTML+=`<li class="d-item">${p.disp(v)}</li>`);document.getElementById('ov').classList.add('open');}
+function closeD(){const p=DEFS[curKey];p.set(p.items[0]);document.getElementById('ov').classList.remove('open');curKey=null;}
+function calc(){const{ac,flap,weight,elev,oat,wind,gs}=S;const qnh=+document.getElementById('qnh').value;const ai=document.getElementById('t-ai').checked,rn=document.getElementById('t-rn').checked;const n0=QRH[ac].e0[flap][2];let fin=n0+(elev/1000)+(oat-15)/10-(qnh-1013)/10+wind/10+(ai?1:0)+(rn?1:0);fin=Math.round(fin*2)/2;document.getElementById('rn1').textContent=fin+'%';document.getElementById('rrange').textContent=(fin-3)+'~'+(fin+3)+'%';document.getElementById('pg-in').classList.remove('on');document.getElementById('pg-res').classList.add('on');}
+function goBack(){document.getElementById('pg-res').classList.remove('on');document.getElementById('pg-in').classList.add('on');}
 </script>
-
 </body>
 </html>
